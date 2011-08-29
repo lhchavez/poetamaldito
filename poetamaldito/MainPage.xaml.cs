@@ -1,22 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Xna.Framework.Audio;
-using System.IO;
 
 namespace poetamaldito {
     public partial class MainPage : PhoneApplicationPage {
         private Speech s = new Speech();
         private string AppId = null;
+        private Markov markov;
 
         // Constructor
         public MainPage() {
@@ -34,9 +26,14 @@ namespace poetamaldito {
                 using (var sr = new StreamReader(resourceStream.Stream)) {
                     AppId = sr.ReadLine().Trim();
                 }
+
+                uri = new Uri("markov.bin", UriKind.RelativeOrAbsolute);
+                markov = new Markov(App.GetResourceStream(uri).Stream);
             }
 
-            s.Speak(AppId, "Hola Mundo!", "es");
+            poem.Text = markov.Poem();
+
+            s.Speak(AppId, poem.Text, "es");
         }
 
         private void SpeechSuccess(SoundEffect mediaSound) {

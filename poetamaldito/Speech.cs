@@ -1,9 +1,6 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Windows.Controls;
-using System.Diagnostics;
-using System.IO.IsolatedStorage;
 using Microsoft.Xna.Framework.Audio;
 
 namespace poetamaldito {
@@ -27,8 +24,9 @@ namespace poetamaldito {
                     
                     var soundStream = new MemoryStream((int)response.ContentLength);
 
+                    byte[] buffer;
                     using (Stream stream = response.GetResponseStream()) {
-                        var buffer = new byte[1024];
+                        buffer = new byte[1024];
                         int read;
 
                         while ((read = stream.Read(buffer, 0, buffer.Length)) > 0) {
@@ -37,6 +35,23 @@ namespace poetamaldito {
                     }
 
                     soundStream.Position = 0;
+
+                    buffer = soundStream.GetBuffer();
+
+                    /*
+                     * Try to normalize amplitude
+                    if (buffer[34] == 8) {
+                        int mx = 0, mn = 255;
+                        for (int i = 44; i < buffer.Length; i++) {
+                            mx = Math.Max(mx, buffer[i]);
+                            mn = Math.Min(mn, buffer[i]);
+                        }
+
+                        for (int i = 44; i < buffer.Length; i++) {
+                            buffer[i] = (byte)(buffer[i] * 250 / (float)mx);
+                        }
+                    }
+                    */
 
                     if (Success != null) {
                         Success(SoundEffect.FromStream(soundStream));
